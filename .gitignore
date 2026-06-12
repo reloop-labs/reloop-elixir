@@ -1,0 +1,10 @@
+# Elixir build and dependencies
+/_build/
+/deps/
+/*.ez
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+*.log
