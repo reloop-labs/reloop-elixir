@@ -20,7 +20,8 @@ defmodule Reloop.MixProject do
   defp deps do
     [
       {:req, "~> 0.3.0"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 end

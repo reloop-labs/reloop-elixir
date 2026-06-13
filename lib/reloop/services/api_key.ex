@@ -1,35 +1,44 @@
 defmodule Reloop.Services.ApiKey do
-  alias Reloop.Client
+  @moduledoc """
+  Manage API keys.
+  """
 
-  def create(client, params) do
-    Client.fetch(client, :post, "/api-key/v1/", params)
+  alias Reloop.Client
+  alias Reloop.Support.Parameters
+
+  def create(client, params) when is_map(params) do
+    Client.fetch(client, :post, "/api/api-key/v1/", params)
   end
 
-  def list(client, params \\ nil) do
-    Client.fetch(client, :get, "/api-key/v1/", nil, params)
+  def list(client, params \\ %{}) do
+    Client.fetch(client, :get, "/api/api-key/v1/", nil, Parameters.for_query(params))
   end
 
   def get(client, id) do
-    Client.fetch(client, :get, "/api-key/v1/#{id}")
+    Client.fetch(client, :get, "/api/api-key/v1/#{id}")
   end
 
-  def update(client, id, params) do
-    Client.fetch(client, :patch, "/api-key/v1/#{id}", params)
+  def update(client, id, params) when is_map(params) do
+    Client.fetch(client, :patch, "/api/api-key/v1/#{id}", params)
   end
 
   def delete(client, id) do
-    Client.fetch(client, :delete, "/api-key/v1/#{id}")
+    Client.fetch(client, :delete, "/api/api-key/v1/#{id}")
   end
 
   def rotate(client, id) do
-    Client.fetch(client, :post, "/api-key/v1/rotate/#{id}")
+    Client.fetch(client, :post, "/api/api-key/v1/rotate/#{id}")
   end
 
   def enable(client, id) do
-    Client.fetch(client, :post, "/api-key/v1/enable/#{id}")
+    Client.fetch(client, :post, "/api/api-key/v1/enable/#{id}")
   end
 
   def disable(client, id) do
-    Client.fetch(client, :post, "/api-key/v1/disable/#{id}")
+    Client.fetch(client, :post, "/api/api-key/v1/disable/#{id}")
+  end
+
+  def pause(client, id) do
+    disable(client, id)
   end
 end
