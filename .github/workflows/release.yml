@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read package version
+        id: meta
+        run: |
+          VERSION=$(grep 'version:' mix.exs | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "archive=reloop-elixir-$VERSION-source.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Verify tag matches mix.exs
+        if: github.ref_type == 'tag'
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="${{ steps.meta.outputs.version }}"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Tag v$TAG_VERSION does not match mix.exs version $PKG_VERSION"
+            exit 1
+          fi
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.16"
+          otp-version: "26"
+
+      - name: Test and build package
+        run: |
+          mix deps.get
+          mix test
+          mix hex.build
+
+      - name: Create source archive
+        run: |
+          zip -r "${{ steps.meta.outputs.archive }}" . \
+            -x '*.git*' '_build/*' 'deps/*' '.github/*'
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: Reloop Elixir SDK ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            ${{ steps.meta.outputs.archive }}
+            reloop-*.tar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
