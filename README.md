@@ -1,104 +1,34 @@
 # Reloop Elixir SDK
 
-Official Elixir client for the [Reloop](https://reloop.sh) API.
+## Before you send
 
-## Install
+You need two things:
 
-Add `reloop` to your list of dependencies in `mix.exs`:
+1. **API key** — create one in your Reloop account
+2. **Verified domain** — add and verify a sending domain; use it in the `from` address
 
-```elixir
-def deps do
-  [
-    {:reloop, "~> 0.1.0"}
-  ]
-end
-```
+For setup details and the full API reference, see [reloop.sh/docs](https://reloop.sh/docs).
 
-## Usage
+## Send email
 
 ```elixir
-client = Reloop.client("rl_your_api_key_here")
+# mix.exs
+{:reloop, "~> 1.8.0"}
 ```
-
-## Domains
-
-Manage sending and receiving domains via `Reloop.Services.Domain`. Pass snake_case map keys; responses are decoded JSON maps from the API.
 
 ```elixir
 client = Reloop.client("rl_your_api_key_here")
 
-{:ok, domain} =
-  Reloop.Services.Domain.create(client, %{
-    domain: "send.example.com",
-    custom_return_path: "inbound",
-    click_tracking: true,
-    open_tracking: true,
-    tls: "opportunistic",
-    sending_email: true,
-    receiving_email: true
+{:ok, result} =
+  Reloop.Services.Mail.send(client, %{
+    from: "Reloop <hello@your-verified-domain.com>",
+    to: "user@example.com",
+    subject: "Welcome to Reloop",
+    html: "<p>Thanks for signing up.</p>",
+    text: "Thanks for signing up.",
   })
 
-{:ok, list} =
-  Reloop.Services.Domain.list(client, %{page: 1, limit: 10, status: "active"})
-
-{:ok, one} = Reloop.Services.Domain.get(client, "domain_123456789")
-
-{:ok, updated} =
-  Reloop.Services.Domain.update(client, "domain_123456789", %{
-    click_tracking: false,
-    sending_email: true
-  })
-
-{:ok, status} = Reloop.Services.Domain.verify(client, "domain_123456789")
-
-{:ok, forwarded} =
-  Reloop.Services.Domain.forward_dns(client, "domain_123456789", %{
-    email: "admin@example.com"
-  })
-
-{:ok, nameservers} = Reloop.Services.Domain.get_nameservers(client, "domain_123456789")
-IO.inspect(nameservers["dnsProvider"])
-
-{:ok, deleted} = Reloop.Services.Domain.delete(client, "domain_123456789")
+IO.inspect(result["messageId"])
 ```
 
-## API Keys
-
-```elixir
-client = Reloop.client("rl_your_api_key_here")
-
-{:ok, api_key} = Reloop.Services.ApiKey.create(client, %{name: "Production Key"})
-{:ok, list} = Reloop.Services.ApiKey.list(client, %{page: 1, limit: 10})
-{:ok, one} = Reloop.Services.ApiKey.get(client, "key_id_here")
-{:ok, updated} = Reloop.Services.ApiKey.update(client, "key_id_here", %{name: "Renamed Key"})
-{:ok, deleted} = Reloop.Services.ApiKey.delete(client, "key_id_here")
-{:ok, rotated} = Reloop.Services.ApiKey.rotate(client, "key_id_here")
-{:ok, paused} = Reloop.Services.ApiKey.pause(client, "key_id_here")
-{:ok, enabled} = Reloop.Services.ApiKey.enable(client, "key_id_here")
-```
-
-## Contacts
-
-```elixir
-client = Reloop.client("rl_your_api_key_here")
-
-{:ok, contact} =
-  Reloop.Services.Contacts.create(client, %{
-    email: "user@example.com",
-    first_name: "Ada",
-    last_name: "Lovelace"
-  })
-
-{:ok, list} = Reloop.Services.Contacts.list(client, %{page: 1, limit: 10})
-{:ok, one} = Reloop.Services.Contacts.get(client, "contact_id_here")
-{:ok, group} = Reloop.Services.Contacts.create_group(client, %{name: "Beta Testers"})
-{:ok, channel} = Reloop.Services.Contacts.create_channel(client, %{name: "Newsletter"})
-{:ok, subscribed} =
-  Reloop.Services.Contacts.add_channel_contact(client, "channel_id_here", %{
-    contact_id: "contact_id_here"
-  })
-```
-
-## License
-
-MIT
+More examples and optional fields: [reloop.sh/docs](https://reloop.sh/docs)
