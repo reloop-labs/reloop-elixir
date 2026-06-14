@@ -2,11 +2,8 @@ name: Publish Elixir Package
 
 on:
   push:
-    branches: [ main ]
-    paths:
-      - 'lib/**'
-      - 'mix.exs'
-      - '.github/workflows/publish.yml'
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
