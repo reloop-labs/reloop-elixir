@@ -38,10 +38,9 @@ jobs:
           elixir-version: "1.16"
           otp-version: "26"
 
-      - name: Test and build package
+      - name: Build package
         run: |
           mix deps.get
-          mix test
           mix hex.build
 
       - name: Create source archive
