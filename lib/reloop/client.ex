@@ -17,6 +17,7 @@ defmodule Reloop.Client do
     
     headers = [
       {"x-api-key", client.api_key},
+      {"user-agent", "reloop-elixir/0.1.3"},
       {"content-type", "application/json"},
       {"accept", "application/json"}
     ]
